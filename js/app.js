@@ -143,6 +143,8 @@ $(function () {
   			console.log(1);
 				var inbox = localStorage.getItem('inbox');
 				var user = localStorage.getItem('user');
+				alert(inbox);
+				alert(user);
 				if (inbox && user) {
 					function postFile(file, data) {
 			      xhr = new XMLHttpRequest();
