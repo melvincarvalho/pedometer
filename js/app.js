@@ -114,7 +114,7 @@ $(function () {
 		},
 
 		reinit: function () {
-			var points = Math.round(parseInt($('#calory-number').text())/10);
+			var points = Math.round(parseInt($('#calory-number').text())/50);
 
 			podo_step   = localStorage.podo_step = 0;
 			podo_speed  = localStorage.podo_step = 0;
