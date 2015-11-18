@@ -142,7 +142,7 @@ $(function () {
 				textActivate = lang.$play;
   			console.log(1);
 				var inbox = localStorage.getItem('inbox');
-				var user = localStorage.getItem('user');
+				var user = JSON.parse(localStorage.getItem('user'));
 				if (inbox && user) {
 					function postFile(file, data) {
 			      xhr = new XMLHttpRequest();
