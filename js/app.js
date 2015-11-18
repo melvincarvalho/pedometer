@@ -143,8 +143,6 @@ $(function () {
   			console.log(1);
 				var inbox = localStorage.getItem('inbox');
 				var user = localStorage.getItem('user');
-				alert(inbox);
-				alert(user);
 				if (inbox && user) {
 					function postFile(file, data) {
 			      xhr = new XMLHttpRequest();
@@ -153,9 +151,9 @@ $(function () {
 			      xhr.send(data);
 			    }
 
-          var points = parseInt($('#calory-number').val())/10;
+          var points = Math.round(parseInt($('#calory-number').text())/10);
 					var tx  = "<#this>\n";
-		          tx += "<https://w3id.org/cc#amount> "+ points  +"  ;\n";
+		          tx += "<https://w3id.org/cc#amount> "+ points +"  ;\n";
 		          tx += "<https://w3id.org/cc#currency> <https://w3id.org/cc#bit> ;\n";
 		          tx += "  <https://w3id.org/cc#destination> <"+ user +"> ;\n";
 		          tx += "<https://w3id.org/cc#source> <https://workbot.databox.me/profile/card#me> ;\n";
