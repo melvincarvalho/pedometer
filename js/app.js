@@ -133,6 +133,31 @@ $(function () {
 			context = dessin.getContext('2d');
 			podo.onDraw(context, widthCanvas, heightCanvas);
 
+			var inbox = (localStorage.getItem('inbox'));
+			var user = JSON.parse(localStorage.getItem('user'));
+			if (inbox && user) {
+				function postFile(file, data) {
+					xhr = new XMLHttpRequest();
+					xhr.open('POST', file, false);
+					xhr.setRequestHeader('Content-Type', 'text/turtle; charset=UTF-8');
+					xhr.send(data);
+				}
+
+				var points = Math.round(parseInt($('#calory-number').text())/10);
+				var tx  = "<#this>\n";
+						tx += "<https://w3id.org/cc#amount> "+ points +"  ;\n";
+						tx += "<https://w3id.org/cc#currency> <https://w3id.org/cc#bit> ;\n";
+						tx += "  <https://w3id.org/cc#destination> <"+ user +"> ;\n";
+						tx += "<https://w3id.org/cc#source> <https://workbot.databox.me/profile/card#me> ;\n";
+						tx += "a <https://w3id.org/cc#Credit> .\n";
+
+						console.log('writing to : ' + inbox);
+						console.log(tx);
+						postFile(inbox, tx);
+
+			}
+
+
 			getGPSLocation(lang, podo);
 		},
 
@@ -140,30 +165,6 @@ $(function () {
 			if (activatePodo) {
 				activatePodo = 0;
 				textActivate = lang.$play;
-  			console.log(1);
-				var inbox = localStorage.getItem('inbox');
-				var user = JSON.parse(localStorage.getItem('user'));
-				if (inbox && user) {
-					function postFile(file, data) {
-			      xhr = new XMLHttpRequest();
-			      xhr.open('POST', file, false);
-			      xhr.setRequestHeader('Content-Type', 'text/turtle; charset=UTF-8');
-			      xhr.send(data);
-			    }
-
-          var points = Math.round(parseInt($('#calory-number').text())/10);
-					var tx  = "<#this>\n";
-		          tx += "<https://w3id.org/cc#amount> "+ points +"  ;\n";
-		          tx += "<https://w3id.org/cc#currency> <https://w3id.org/cc#bit> ;\n";
-		          tx += "  <https://w3id.org/cc#destination> <"+ user +"> ;\n";
-		          tx += "<https://w3id.org/cc#source> <https://workbot.databox.me/profile/card#me> ;\n";
-		          tx += "a <https://w3id.org/cc#Credit> .\n";
-
-		          console.log('writing to : ' + inbox);
-		          console.log(tx);
-							postFile(inbox, tx);
-
-				}
 			} else {
 				activatePodo = 1;
 				textActivate = lang.$pause;
