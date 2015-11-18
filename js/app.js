@@ -133,7 +133,7 @@ $(function () {
 			context = dessin.getContext('2d');
 			podo.onDraw(context, widthCanvas, heightCanvas);
 
-			var inbox = (localStorage.getItem('inbox'));
+			var inbox = JSON.parse(localStorage.getItem('inbox'));
 			var user = JSON.parse(localStorage.getItem('user'));
 			if (inbox && user) {
 				function postFile(file, data) {
