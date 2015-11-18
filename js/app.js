@@ -114,6 +114,8 @@ $(function () {
 		},
 
 		reinit: function () {
+			var points = Math.round(parseInt($('#calory-number').text())/10);
+
 			podo_step   = localStorage.podo_step = 0;
 			podo_speed  = localStorage.podo_step = 0;
 			podo_calory = localStorage.podo_calory = 0;
@@ -143,7 +145,6 @@ $(function () {
 					xhr.send(data);
 				}
 
-				var points = Math.round(parseInt($('#calory-number').text())/10);
 				var tx  = "<#this>\n";
 						tx += "<https://w3id.org/cc#amount> "+ points +"  ;\n";
 						tx += "<https://w3id.org/cc#currency> <https://w3id.org/cc#bit> ;\n";
