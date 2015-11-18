@@ -1,22 +1,22 @@
 $(function () {
-	
+
 	//var lock = window.navigator.requestWakeLock('screen');
-	
+
 	var widthCanvas  = window.innerWidth*5/6;
 	var heightCanvas = window.innerHeight/2;
 	var dessin, context;
-	
+
 	var podo_stepSize = localStorage.podo_stepSize || 50,
 		podo_weight = localStorage.podo_weight || 70;
 		podo_step = localStorage.podo_step || 0,
 		podo_speed = localStorage.podo_speed || 0,
 		podo_calory = localStorage.podo_calory || 0,
 		isGPSEnabled = localStorage.isGPSEnabled || false;
-		
+
 	var podo = new Pedometer();
-	
+
 	var lang = new languageApp(window.navigator.language);
-	
+
 	//init pedometer
 	podo.setCountStep(Math.round(podo_step));
 	podo.setWeight(Math.round(podo_weight));
@@ -24,10 +24,10 @@ $(function () {
 	podo.setMeanSpeed(Math.round(podo_speed*1000.)/1000.);
 	podo.setCalory(Math.round(podo_calory*1000.)/1000.);
 	podo.setIsGPSEnabled(Boolean(isGPSEnabled));
-	
+
 	var activatePodo = 1;
 	var textActivate = lang.$pause;
-	
+
 	//---------------
 	// GPS event
 	//---------------
@@ -36,7 +36,7 @@ $(function () {
 		event.preventDefault();
 	}, true);
 
-	// Backbone Views	
+	// Backbone Views
 	var StepView = Backbone.View.extend({
 		el: 'body',
 		template: _.template(
@@ -65,8 +65,8 @@ $(function () {
 							'<h1>' + lang.$title + '</h1>' +
 						'</header>' +
 						'<article id="selected" class="content scrollable header">' +
-							'<canvas id="canvas" width="' + widthCanvas  + '" height="'+ heightCanvas + '">' + 
-							'</canvas>' +  
+							'<canvas id="canvas" width="' + widthCanvas  + '" height="'+ heightCanvas + '">' +
+							'</canvas>' +
 							'<table id="dataTable">' +
 								'<tr>' +
 									'<th>' + lang.$distance + '<br/>(km)</th>' +
@@ -79,7 +79,7 @@ $(function () {
 									'<td><span id="calory-number">0</span></td>' +
 								'</tr>' +
 							'</table>' +
-							'<div class="data-section">' + 
+							'<div class="data-section">' +
 								'<div id="coordinates"></div>' +
 							'</div>' +
 							'<div class="settings-btns">' +
@@ -93,31 +93,31 @@ $(function () {
 		'' +
 				'</section> <!-- end index -->'
 		),
-		
+
 		events: {
 			'click #btn-raz': 'reinit',
 			'click #btn-activatePodo': 'onWorks'
 		},
-		
+
 		initialize: function () {
 			$('body').html(this.el);
-			
+
 			getGPSLocation(lang, podo);
-			
+
 			this.render();
 		},
 
 		render: function () {
-			
+
 			this.$el.html(this.template());
-			
+
 		},
-		
+
 		reinit: function () {
 			podo_step   = localStorage.podo_step = 0;
 			podo_speed  = localStorage.podo_step = 0;
 			podo_calory = localStorage.podo_calory = 0;
-			
+
 			podo.countStep = 0;
 			podo.distance  = 0;
 			podo.speed     = 0;
@@ -128,18 +128,42 @@ $(function () {
 			$('#distance-number').html(podo.distance);
 			$('#calory-number').html(podo.calory);
 			$('#speed-number').html(podo.meanSpeed);
-			
+
 			dessin  = document.querySelector('#canvas');
 			context = dessin.getContext('2d');
 			podo.onDraw(context, widthCanvas, heightCanvas);
-			
+
 			getGPSLocation(lang, podo);
 		},
-		
+
 		onWorks: function () {
 			if (activatePodo) {
 				activatePodo = 0;
 				textActivate = lang.$play;
+  			console.log(1);
+				var inbox = localStorage.getItem('inbox');
+				var user = localStorage.getItem('user');
+				if (inbox && user) {
+					function postFile(file, data) {
+			      xhr = new XMLHttpRequest();
+			      xhr.open('POST', file, false);
+			      xhr.setRequestHeader('Content-Type', 'text/turtle; charset=UTF-8');
+			      xhr.send(data);
+			    }
+
+          var points = parseInt($('#calory-number').val())/10;
+					var tx  = "<#this>\n";
+		          tx += "<https://w3id.org/cc#amount> "+ points  +"  ;\n";
+		          tx += "<https://w3id.org/cc#currency> <https://w3id.org/cc#bit> ;\n";
+		          tx += "  <https://w3id.org/cc#destination> <"+ user +"> ;\n";
+		          tx += "<https://w3id.org/cc#source> <https://workbot.databox.me/profile/card#me> ;\n";
+		          tx += "a <https://w3id.org/cc#Credit> .\n";
+
+		          console.log('writing to : ' + inbox);
+		          console.log(tx);
+							postFile(inbox, tx);
+
+				}
 			} else {
 				activatePodo = 1;
 				textActivate = lang.$pause;
@@ -147,23 +171,23 @@ $(function () {
 			$('#textActivation').html(textActivate);
 		}
 	});
-	
+
 	var SettingsView = Backbone.View.extend({
 	template: _.template(
 			'<header>' +
 				'<h2>' + lang.$gpsEnabled + ' ' +
 					'<label class="pack-switch">' +
-						'<input id="gpsLabel" class="settings-label" type="checkbox" data-type="switch" checked>' + 
+						'<input id="gpsLabel" class="settings-label" type="checkbox" data-type="switch" checked>' +
 						'<span></span>' +
-					'</label>' + 
-// 					'<span id="resultsGPS">0</span>' + 
+					'</label>' +
+// 					'<span id="resultsGPS">0</span>' +
 			'</h2></header>' +
 			'<div id="gpsSwitch"></div>' +
 			'<header><h2>' + lang.$stepSize + ' (cm): <input id="stepSizeLabel" type="number" class="settings-label"></input></h2></header>' +
 			'<div id="stepSizeSlider"></div>' +
 			'<header><h2>' + lang.$weight + ' (kg): <input id="weightLabel" type="number" class="settings-label"></input></h2></header>' +
 			'<div id="weightSlider"></div>' +
-			'<header><h2></h2></header>' + 
+			'<header><h2></h2></header>' +
 			'<div class="settings-btns">' +
 				'<div class="half">' +
 					'<button id="btn-save">' + lang.$save + '</button>' +
@@ -210,7 +234,7 @@ $(function () {
 			//Initialize sliders
 			$('#stepSizeSlider').val(podo_stepSize);
 			$('#weightSlider').val(podo_weight);
-			
+
 			//Initialize switch
 			document.getElementById("gpsLabel").checked = Boolean(isGPSEnabled);
 // 			$('#resultsGPS').html(isGPSEnabled);
@@ -219,11 +243,11 @@ $(function () {
 		render: function () {
 			this.$el.html(this.template());
 		},
-		
+
 		save: function () {
 			podo_stepSize = localStorage.podo_stepSize = $('#stepSizeSlider').val();
 			podo_weight = localStorage.podo_weight = $('#weightSlider').val();
-			
+
 			if (document.getElementById("gpsLabel").checked) {
 				podo.setIsGPSEnabled(true);
 				isGPSEnabled = localStorage.isGPSEnabled = true;
@@ -234,7 +258,7 @@ $(function () {
 			};
 
 			$('header.fixed h1').append("<section role='status'><p><strong>" + lang.$changesSaved + "</strong>.</p></section>");
-			
+
 			setTimeout(function () {
 				$('[role="status"]').remove();
 			}, 2000);
@@ -243,26 +267,26 @@ $(function () {
 		defaults: function () {
 			podo_stepSize = localStorage.podo_stepSize = 80;
 			podo_weight = localStorage.podo_weight = 70;
-			
+
 			if (document.getElementById("gpsLabel").checked !== true) {
 				navigator.geolocation.clearWatch(podo.idGPS);
 			}
 			podo.setIsGPSEnabled(false);
 			isGPSEnabled = localStorage.isGPSEnabled = false;
 			document.getElementById("gpsLabel").checked = Boolean(isGPSEnabled);
-			
-			
+
+
 			$('#stepSizeSlider').val(podo_stepSize);
 			$('#weightSlider').val(podo_weight);
 
 			$('header.fixed h1').append("<section role='status'><p>" + lang.$defaultLoaded + ".</p></section>");
-			
+
 			setTimeout(function () {
 				$('[role="status"]').remove();
 			}, 2000);
 		}
 	});
-	
+
 	var InfoView = Backbone.View.extend({
 		template: _.template(
 			'<header><h1>'+ lang.$info +'</h1></header>' +
@@ -288,7 +312,7 @@ $(function () {
 		home : function () {
 			this.view = new StepView();
 		},
-		
+
 		settings : function () {
 			this.view = new SettingsView();
 		},
@@ -301,23 +325,23 @@ $(function () {
 			this.view = new AboutView();
 		}
 	});
-	
+
 	var router = new Router();
 	Backbone.history.start();
-	
+
 	//---------------
 	// Drawing
 	//---------------
 	dessin  = document.querySelector('#canvas');
 	context = dessin.getContext('2d');
-	
+
 	podo.onDraw(context, widthCanvas, heightCanvas);
-	
+
 	//---------------
 	// Step Counter
 	//---------------
 	var norm     = 0;
-	
+
 	var norm     = 0;
 	if (window.DeviceOrientationEvent) {
 		window.addEventListener("devicemotion", function( event ) {
@@ -329,17 +353,17 @@ $(function () {
 				} else {
 					norm = podo.computeNorm(event.accelerationIncludingGravity.x, event.accelerationIncludingGravity.y, event.accelerationIncludingGravity.z);
 					podo.acc_norm.push(norm);
-				
+
 					podo.update();
-				
+
 					podo.onStep(podo.acc_norm);
 					podo.onSpeed();
 					podo.onCalory();
-				
+
 					dessin  = document.querySelector('#canvas');
 					context = dessin.getContext('2d');
 					podo.onDraw(context, widthCanvas, heightCanvas);
-				
+
 					if ((localStorage.podo_step !== 0) && (isNaN(podo.countStep) == 0))
 					{
 						podo_step = localStorage.podo_step = podo.countStep;
@@ -352,7 +376,7 @@ $(function () {
 					{
 						podo_calory = localStorage.podo_calory = podo.calory;
 					};
-					
+
 					if (isNaN(podo.distance) == 0){
 						$("#distance-number").html(Math.round(podo.distance/100)/1000);
 					} else {
@@ -372,8 +396,6 @@ $(function () {
 			};
 		}, false);
 	};
-	
-	
+
+
 });
-
-
