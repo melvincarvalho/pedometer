@@ -113,8 +113,24 @@ $(function () {
 
 		},
 
+		createPost: function(webid, message, application) {
+		  var turtle;
+		  turtle = '<#this> ';
+		  turtle += '    <http://purl.org/dc/terms/created> "'+ new Date().toISOString() +'"^^<http://www.w3.org/2001/XMLSchema#dateTime> ;\n';
+		  turtle += '    <http://purl.org/dc/terms/creator> <' + webid + '> ;\n';
+		  turtle += '    <http://rdfs.org/sioc/ns#content> "'+ message.trim() +'" ;\n';
+		  turtle += '    a <http://rdfs.org/sioc/ns#Post> ;\n';
+
+		  if (application) {
+		    turtle += '    <https://w3.org/ns/solid/app#application> <' + application + '> ;\n';
+		  }
+
+		  turtle += '    <http://www.w3.org/ns/mblog#author> <'+ webid +'> .\n';
+		  return turtle;
+		},
+
 		reinit: function () {
-			var points = Math.round(parseInt($('#calory-number').text())/50);
+			var points = podo_step;
 
 			podo_step   = localStorage.podo_step = 0;
 			podo_speed  = localStorage.podo_step = 0;
@@ -125,7 +141,7 @@ $(function () {
 			podo.speed     = 0;
 			podo.meanSpeed = 0;
 			podo.calory    = 0;
-			podo.stepArr   = new Array();
+			podo.stepArr   = [];
 
 			$('#distance-number').html(podo.distance);
 			$('#calory-number').html(podo.calory);
@@ -146,7 +162,7 @@ $(function () {
 				}
 
 				var tx  = "<#this>\n";
-						tx += "<https://w3id.org/cc#amount> "+ points +"  ;\n";
+						tx += "<https://w3id.org/cc#amount> "+ Math.round(points/10.0) +"  ;\n";
 						tx += "<https://w3id.org/cc#currency> <https://w3id.org/cc#bit> ;\n";
 						tx += "  <https://w3id.org/cc#destination> <"+ user +"> ;\n";
 						tx += "<https://w3id.org/cc#source> <https://workbot.databox.me/profile/card#me> ;\n";
@@ -155,6 +171,11 @@ $(function () {
 						console.log('writing to : ' + inbox);
 						console.log(tx);
 						postFile(inbox, tx);
+
+        var message = "You just walked "+ points +" steps";
+				var post = this.createPost(user, message);
+				console.log(post);
+				postFile(inbox, post);
 
 			}
 
