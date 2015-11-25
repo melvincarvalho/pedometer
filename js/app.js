@@ -113,21 +113,34 @@ $(function () {
 
 		},
 
-		createPost: function(webid, message, application) {
-		  var turtle;
-		  turtle = '<#this> ';
-		  turtle += '    <http://purl.org/dc/terms/created> "'+ new Date().toISOString() +'"^^<http://www.w3.org/2001/XMLSchema#dateTime> ;\n';
-		  turtle += '    <http://purl.org/dc/terms/creator> <' + webid + '> ;\n';
-		  turtle += '    <http://rdfs.org/sioc/ns#content> "'+ message.trim() +'" ;\n';
-		  turtle += '    a <http://rdfs.org/sioc/ns#Post> ;\n';
 
-		  if (application) {
-		    turtle += '    <https://w3.org/ns/solid/app#application> <' + application + '> ;\n';
-		  }
+		/**
+	  * create a post in turtle
+	  * @param  {string} webid       the creator
+	  * @param  {string} message     the message to send
+	  * @param  {string} application application that created it
+	  * @param  {string} img         img for that post
+	  * @return {string}             the message in turtle
+	  */
+	  createPost: function(webid, message, application, img) {
+	    var turtle;
+	    turtle = '<#this> ';
+	    turtle += '    <http://purl.org/dc/terms/created> "'+ new Date().toISOString() +'"^^<http://www.w3.org/2001/XMLSchema#dateTime> ;\n';
+	    turtle += '    <http://purl.org/dc/terms/creator> <' + webid + '> ;\n';
+	    turtle += '    <http://rdfs.org/sioc/ns#content> "'+ message.trim() +'" ;\n';
+	    turtle += '    a <http://rdfs.org/sioc/ns#Post> ;\n';
 
-		  turtle += '    <http://www.w3.org/ns/mblog#author> <'+ webid +'> .\n';
-		  return turtle;
-		},
+	    if (application) {
+	      turtle += '    <https://w3.org/ns/solid/app#application> <' + application + '> ;\n';
+	    }
+
+	    if (img) {
+	      turtle += '    <http://xmlns.com/foaf/0.1/img> <' + img + '> ;\n';
+	    }
+
+	    turtle += '    <http://www.w3.org/ns/mblog#author> <'+ webid +'> .\n';
+	    return turtle;
+	  },
 
 		reinit: function () {
 			var points = podo_step;
@@ -173,7 +186,7 @@ $(function () {
 						postFile(inbox, tx);
 
         var message = "You just walked "+ points +" steps";
-				var post = this.createPost(user, message);
+				var post = this.createPost(user, message, null, 'https://melvincarvalho.github.io/pedometer/images/icon.png');
 				console.log(post);
 				postFile(inbox, post);
 
